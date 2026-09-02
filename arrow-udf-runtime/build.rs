@@ -4,7 +4,7 @@ fn main() {
         if std::env::var("DOCS_RS").is_ok() {
             return;
         }
-        let version = pyo3_build_config::get().version;
+        let version = pyo3_build_config::get().version();
         let minimum_version = pyo3_build_config::PythonVersion {
             major: 3,
             minor: 12,

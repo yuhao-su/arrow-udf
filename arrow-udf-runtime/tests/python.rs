@@ -945,8 +945,10 @@ fn test_error() {
             DataType::Int32,
             CallMode::ReturnNullOnNullInput,
             r#"
+# true division: CPython 3.14 unified the `ZeroDivisionError` message, and only
+# the true-division wording ("division by zero") is the same on every version.
 def div(a: int, b: int) -> int:
-    return a // b
+    return int(a / b)
 "#,
         )
         .unwrap();
@@ -964,12 +966,12 @@ def div(a: int, b: int) -> int:
     check(
         &[output],
         expect![[r#"
-        +-----+-------------------------------------------------------+
-        | div | error                                                 |
-        +-----+-------------------------------------------------------+
-        |     | ZeroDivisionError: integer division or modulo by zero |
-        | 2   |                                                       |
-        +-----+-------------------------------------------------------+"#]],
+        +-----+-------------------------------------+
+        | div | error                               |
+        +-----+-------------------------------------+
+        |     | ZeroDivisionError: division by zero |
+        | 2   |                                     |
+        +-----+-------------------------------------+"#]],
     );
 
     runtime

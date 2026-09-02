@@ -23,7 +23,7 @@ use arrow_array::builder::{ArrayBuilder, Int32Builder, StringBuilder};
 use arrow_array::{Array, ArrayRef, BooleanArray, RecordBatch};
 use arrow_schema::{DataType, Field, FieldRef, Schema, SchemaRef};
 use pyo3::types::{PyAnyMethods, PyIterator, PyModule, PyTuple};
-use pyo3::{Py, PyObject};
+use pyo3::{Py, PyAny};
 use std::collections::HashMap;
 use std::ffi::CString;
 use std::fmt::Debug;
@@ -80,7 +80,7 @@ impl Debug for Runtime {
 
 /// A user defined function.
 struct Function {
-    function: PyObject,
+    function: Py<PyAny>,
     return_field: FieldRef,
     mode: CallMode,
 }
@@ -90,11 +90,11 @@ struct Aggregate {
     state_field: FieldRef,
     output_field: FieldRef,
     mode: CallMode,
-    create_state: PyObject,
-    accumulate: PyObject,
-    retract: Option<PyObject>,
-    finish: Option<PyObject>,
-    merge: Option<PyObject>,
+    create_state: Py<PyAny>,
+    accumulate: Py<PyAny>,
+    retract: Option<Py<PyAny>>,
+    finish: Option<Py<PyAny>>,
+    merge: Option<Py<PyAny>>,
 }
 
 /// A builder for `Runtime`.
@@ -786,7 +786,7 @@ impl Drop for RecordBatchIter<'_> {
 
 impl Drop for Runtime {
     fn drop(&mut self) {
-        // `PyObject` must be dropped inside the interpreter
+        // `Py<PyAny>` must be dropped inside the interpreter
         _ = self.interpreter.with_gil(|_| {
             self.functions.clear();
             self.aggregates.clear();
