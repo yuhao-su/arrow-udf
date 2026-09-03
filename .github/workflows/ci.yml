@@ -131,6 +131,8 @@ jobs:
           cd arrow-udf-remote/java
           mvn test
           cd ../..
+      - name: Install Python UDF Server
+        run: pip install ./arrow-udf-remote/python
       - name: Test remote with Python UDF Server
         run: |
           python arrow-udf-remote/python/example.py &
@@ -203,7 +205,7 @@ jobs:
 
   # The only check the main ruleset requires, so matrix changes never need a ruleset edit.
   ci-pass:
-    needs: [fmt, test, test-remote, test-duckdb, docs]
+    needs: [fmt, test, test-python-package, test-remote, test-duckdb, docs]
     if: always()
     runs-on: ubuntu-latest
     steps:
