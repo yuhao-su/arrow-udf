@@ -178,11 +178,11 @@ jobs:
         with:
           # docs.rs uses Python 3.10
           python-version: '3.10'
+      # Applies each crate's `[package.metadata.docs.rs]` the way docs.rs does.
+      - uses: dtolnay/install@cargo-docs-rs
       - name: Build docs
-        uses: actions-rs/cargo@v1
-        env:
-          RUSTDOCFLAGS: "--cfg docsrs"
-          DOCS_RS: 1
-        with:
-          command: doc
-          args: --no-deps --workspace
+        # The published crates; docs.rs never builds arrow-udf-bench or arrow-udf-example.
+        run: |
+          for crate in arrow-udf arrow-udf-macros arrow-udf-runtime; do
+            cargo docs-rs -p $crate
+          done
