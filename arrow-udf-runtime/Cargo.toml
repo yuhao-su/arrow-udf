@@ -7,6 +7,13 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[package.metadata.docs.rs]
+# The JavaScript runtime is left out of the docs.rs build: rquickjs 0.6 does not compile on the
+# nightly docs.rs uses, which would fail the whole build. Drop this once the JavaScript runtime
+# moves off rquickjs 0.6, see https://github.com/arrow-udf/arrow-udf/issues/162.
+no-default-features = true
+features = ["wasm", "python", "remote"]
+
 [features]
 default = ["wasm", "python", "javascript", "remote"]
 embedded = ["wasm", "python", "javascript"]
