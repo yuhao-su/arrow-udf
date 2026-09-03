@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-09-02
+
+### Fixed
+
+- `JsonScalar.as_py` and `DecimalScalar.as_py` accept the `maps_as_pydicts` keyword that `Scalar.as_py` takes since pyarrow 20 ([#129](https://github.com/arrow-udf/arrow-udf/issues/129)).
+
+### Changed
+
+- Relax the `pyarrow` requirement to `>=19,<26`.
+
 ## [0.3.1] - 2025-05-09
 
 ### Fixed

@@ -94,6 +94,24 @@ jobs:
           command: test
           args: --bench bench
 
+  test-python-package:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        python-version: [ '3.12', '3.14' ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Installing the package rather than a bare pyarrow is what checks that the declared
+      # requirement resolves on this interpreter.
+      - name: Test Python UDF Server
+        run: |
+          pip install './arrow-udf-remote/python[test]'
+          pytest arrow-udf-remote/python/arrow_udf/test_udf.py
+
   test-remote:
     strategy:
       matrix:
@@ -108,10 +126,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-      - name: Test Python UDF Server
-        run: |
-          pip install pyarrow pytest
-          pytest arrow-udf-remote/python/arrow_udf/test_udf.py
       - name: Test Java UDF Server
         run: |
           cd arrow-udf-remote/java
