@@ -7,6 +7,13 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[package.metadata.docs.rs]
+# The JavaScript runtime is left out of the docs.rs build: rquickjs 0.6 does not compile on the
+# nightly docs.rs uses, which would fail the whole build. Drop this once the JavaScript runtime
+# moves off rquickjs 0.6, see https://github.com/arrow-udf/arrow-udf/issues/162.
+no-default-features = true
+features = ["wasm", "python", "remote"]
+
 [features]
 default = ["wasm", "python", "javascript", "remote"]
 embedded = ["wasm", "python", "javascript"]
@@ -42,7 +49,7 @@ wasmtime = { version = "36", optional = true }
 genawaiter2 = { version = "0.100.1", optional = true }
 tempfile = { version = "3", optional = true }
 
-pyo3 = { version = "0.24.1", optional = true, features = ["auto-initialize"] }
+pyo3 = { version = "0.29.2", optional = true, features = ["auto-initialize"] }
 
 atomic-time = { version = "0.1", optional = true }
 rquickjs = { version = "0.6", features = [
@@ -60,7 +67,7 @@ tonic = { version = "0.14", optional = true }
 tracing = { version = "0.1", optional = true }
 
 [build-dependencies]
-pyo3-build-config = { version = "0.24", features = ["resolve-config"] }
+pyo3-build-config = { version = "0.29", features = ["resolve-config"] }
 
 [dev-dependencies]
 arrow-cast = { workspace = true, features = ["prettyprint"] }

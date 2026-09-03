@@ -39,12 +39,14 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
+        # 3.12 is the minimum supported by the embedded Python runtime, 3.14 the latest.
+        python-version: [ '3.12', '3.14' ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ matrix.python-version }}
       - uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -60,7 +62,8 @@ jobs:
           unzip libduckdb-linux-amd64.zip -d libduckdb
           echo "DUCKDB_LIB_DIR=$PWD/libduckdb" >> $GITHUB_ENV
           echo "DUCKDB_INCLUDE_DIR=$PWD/libduckdb" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$PWD/libduckdb" >> $GITHUB_ENV
+          # Prepend: setup-python already put the shared libpython on the path.
+          echo "LD_LIBRARY_PATH=$PWD/libduckdb${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> $GITHUB_ENV
       - name: Install duckdb on macOS
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
@@ -175,11 +178,19 @@ jobs:
         with:
           # docs.rs uses Python 3.10
           python-version: '3.10'
+      # Applies each crate's `[package.metadata.docs.rs]` the way docs.rs does.
+      - uses: dtolnay/install@cargo-docs-rs
       - name: Build docs
-        uses: actions-rs/cargo@v1
-        env:
-          RUSTDOCFLAGS: "--cfg docsrs"
-          DOCS_RS: 1
-        with:
-          command: doc
-          args: --no-deps --workspace
+        # The published crates; docs.rs never builds arrow-udf-bench or arrow-udf-example.
+        run: |
+          for crate in arrow-udf arrow-udf-macros arrow-udf-runtime; do
+            cargo docs-rs -p $crate
+          done
+
+  # The only check the main ruleset requires, so matrix changes never need a ruleset edit.
+  ci-pass:
+    needs: [fmt, test, test-remote, test-duckdb, docs]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo '${{ toJSON(needs) }}' | jq -e 'all(.[]; .result == "success")'

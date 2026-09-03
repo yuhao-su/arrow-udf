@@ -18,7 +18,7 @@ use arrow_array::{array::*, builder::*};
 use arrow_buffer::OffsetBuffer;
 use arrow_schema::{DataType, Field, Fields};
 use pyo3::{
-    IntoPyObject, PyObject, PyResult, Python,
+    IntoPyObject, Py, PyAny, PyResult, Python,
     exceptions::PyTypeError,
     ffi::c_str,
     prelude::PyDictMethods,
@@ -139,7 +139,7 @@ impl Converter {
         field: &Field,
         array: &dyn Array,
         i: usize,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         if array.is_null(i) {
             return Ok(py.None());
         }
@@ -260,7 +260,7 @@ impl Converter {
         &self,
         field: &Field,
         py: Python<'_>,
-        values: &[PyObject],
+        values: &[Py<PyAny>],
     ) -> PyResult<ArrayRef> {
         match field.data_type() {
             DataType::Null => build_array!(NullBuilder, py, values),
@@ -402,7 +402,7 @@ impl Converter {
                 for val in values {
                     if !val.is_none(py) {
                         let py_any = val.bind(py);
-                        let dict = py_any.downcast::<PyDict>()?;
+                        let dict = py_any.cast::<PyDict>()?;
                         flatten_keys.reserve(dict.len());
                         flatten_values.reserve(dict.len());
                         for key in dict.keys() {
