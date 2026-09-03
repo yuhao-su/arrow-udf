@@ -63,7 +63,7 @@ jobs:
           echo "DUCKDB_LIB_DIR=$PWD/libduckdb" >> $GITHUB_ENV
           echo "DUCKDB_INCLUDE_DIR=$PWD/libduckdb" >> $GITHUB_ENV
           # Prepend: setup-python already put the shared libpython on the path.
-          echo "LD_LIBRARY_PATH=$PWD/libduckdb:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$PWD/libduckdb${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> $GITHUB_ENV
       - name: Install duckdb on macOS
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
