@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update `pyo3` version from `0.24` to `0.29` for CPython 3.14 support.
+
 ## [0.9.0] - 2026-04-22
 
 ### Changed
