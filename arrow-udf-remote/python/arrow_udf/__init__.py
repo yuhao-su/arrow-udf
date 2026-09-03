@@ -437,7 +437,9 @@ class UdfServer(pa.flight.FlightServerBase):
 
 
 class JsonScalar(pa.ExtensionScalar):
-    def as_py(self):
+    # Mirrors `Scalar.as_py` as of pyarrow 20. The argument is accepted and ignored: the
+    # storage is a string, so there is no arrow map for it to apply to.
+    def as_py(self, *, maps_as_pydicts=None):
         return json.loads(self.value.as_py()) if self.value is not None else None
 
 
@@ -461,7 +463,7 @@ class JsonType(pa.ExtensionType):
 
 
 class DecimalScalar(pa.ExtensionScalar):
-    def as_py(self):
+    def as_py(self, *, maps_as_pydicts=None):
         return Decimal(self.value.as_py()) if self.value is not None else None
 
 

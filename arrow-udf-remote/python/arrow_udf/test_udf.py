@@ -162,6 +162,24 @@ def return_all(
     }
 
 
+def test_extension_scalar_as_py_signature():
+    json_array = pa.ExtensionArray.from_storage(
+        JsonType(), pa.array(['{"a": 1}', '{"b": 2}'], type=pa.string())
+    )
+    decimal_array = pa.ExtensionArray.from_storage(
+        DecimalType(), pa.array(["1.5"], type=pa.string())
+    )
+
+    # Calling with the keyword directly guards the signature on every pyarrow version;
+    # only 20 through 24 forward it on their own.
+    assert json_array[0].as_py(maps_as_pydicts="strict") == {"a": 1}
+    assert decimal_array[0].as_py(maps_as_pydicts="strict") == Decimal("1.5")
+
+    # The path that raised in practice: pyarrow unwrapping the scalars of a nested array.
+    nested = pa.ListArray.from_arrays(pa.array([0, 2], type=pa.int32()), json_array)
+    assert nested.to_pylist() == [[{"a": 1}, {"b": 2}]]
+
+
 def test_simple():
     LEN = 64
     data = pa.Table.from_arrays(
